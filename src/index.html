@@ -9,7 +9,7 @@
         <style>
             .fader-name { 
                 text-align: center;
-                font-size: 0.75em;
+                font-size: 1.2vw;
                 font-variant: small-caps;
                 padding-bottom: 2px;
                 color:var(--bs-gray-500);
@@ -29,23 +29,29 @@
             }
             .fader-level {
                 text-align: center;
-                padding-top: .3em;
-                padding-bottom: .3em;
+                padding-top: .4vw;
+                padding-bottom: .4vw;
                 background-color: #492024;
                 color: var(--bs-red);
                 border-top-left-radius: .3em;
                 border-top-right-radius: .3em;
                 border: #000000 1px solid;
+                font-size: 1.5vw;
+                text-wrap: nowrap;
+                /* max-height: 30px; */
             }
             .fader-label { 
                 text-align: center;
-                font-size: 0.8em;
+                font-size: 0.8vw;
                 font-weight: bold;
-                padding: 3px 0px;
+                padding: 3px 3px;
                 border-bottom-left-radius: .3em;
                 border-bottom-right-radius: .3em;
                 border:#000000 1px solid;
-                min-height: 1.65rem;
+                text-overflow: ellipsis;
+                align-content: center;
+                max-width: 6.25vw;
+                overflow: hidden;
             }
             .fader-box[data-is-on="true"] .fader-level {
                 background-color: var(--bs-success-text-emphasis);
@@ -117,34 +123,46 @@
                 color:var(--bs-body-bg);
             }
 
-            #current-cue { font-size: .75em; }
-
+            #current-cue { font-size: 1vw; }
             #status {
-                width: 15px;
-                height: 15px;
+                width: 1.17vw;
+                height: 1.17vw;
                 border-radius: 100%;
                 border:#000000 1px solid;
-                margin-right: 20px;
+                margin-right: 1vw;
             }
             #status[data-last="0"] { background-color: var(--bs-red); }
             #status[data-last="1"] { background-color: var(--bs-yellow); }
             #status[data-last="2"] { background-color: var(--bs-green); }
+
+            #title { font-size: 3.125vw; }
+            #main-icon { width : 8.2vw; }
+            #cue-counts { font-size: 1.2vw; }
+            #title-wrapper { padding-top: .72vw; padding-bottom: .72vw; }
+            #vor, #x32, #vor-sends, #show-audio-label,
+            #vor .btn, #x32 .btn, #vor input, #x32 input, #vor-sends label {
+                font-size: 1.25vw;
+            }
         </style>
     </head>
     <body data-bs-theme="dark">
-        <main class="container-fluid m-0 p-0">
-            <div class="d-flex align-items-center px-3 py-2">
-                <img src="/assets/icon.svg" width="90" class="img-fluid" alt="logo">
-                <div class="text-body-tertiary small border border-black bg-info-subtle bg-gradient py-2 px-4 ms-5 rounded-4 text-center">
+        <main class="container-fluid m-0 p-0 d-flex flex-column vh-100 overflow-hidden">
+            <div id="title-wrapper" class="d-flex align-items-center px-3">
+                <img src="/assets/icon.svg" id="main-icon" class="img-fluid" alt="logo">
+                <div id="cue-counts" title="Stack size on console - this data may lag by up to 5 minutes. You can click connect again to force refresh" class="text-body-tertiary small border border-black bg-info-subtle bg-gradient py-2 px-4 ms-5 rounded-4 text-center">
                     <div>Cues : <span id="cue-count"></span></div>
                     <div>Scenes : <span id="scene-count"></span></div>
                     <div>Snippets : <span id="snippet-count"></span></div>
                 </div>
-                <h1 class="flex-grow-1 text-center">X32 OSC Proxy</h1>
-                <div id="status" data-last="2"></div>
+                <h1 class="flex-grow-1 text-center" id="title">X32 OSC Proxy</h1>
+                <div title="Time since last X32 packet :: Green &lt; 5s, Yellow : &lt; 30s, Red : &gt; 30s" id="status" data-last="2"></div>
+                <div>
+                    <input type="checkbox" class="btn-check" checked id="show-audio">
+                    <label title="Toggle meter overlay - this setting is not saved" class="btn-sm btn btn-outline-warning" id="show-audio-label" for="show-audio">✓</label>
+                </div>
             </div>
 
-            <table class="w-100"><tbody>
+            <div class="flex-grow-1 align-content-center"><table class="w-100"><tbody>
                 <tr>
                     <td class="fader-box" id="chan-1" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch01</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
                     <td class="fader-box" id="chan-2" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch02</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
@@ -227,77 +245,63 @@
                     <td class="fader-box" id="dca-7" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">dca07</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
                     <td class="fader-box" id="dca-8" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">dca08</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
 
-                    <td colspan="6" class="align-bottom px-4 pb-2"><div id="current-cue" class="border border-black bg-info-subtle bg-gradient w-100 p-2 rounded-4 text-center"></div></td>
+                    <td colspan="6" class="align-bottom px-4 pb-2"><div id="current-cue" class="border border-black bg-info-subtle bg-gradient w-100 p-2 rounded-4 text-center" title="Current cue - cue name data may lag by up to 5 minutes. You can click connect again to force refresh"></div></td>
 
                     <td class="fader-box" id="main-2" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">m/c</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
                     <td class="fader-box" id="main-1" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">main</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
                 </tr>
-            </tbody></table>
+            </tbody></table></div>
 
-            <div class="container-fluid">
-            <div class="row border-top mt-3 pt-3">
-                <div class="col-6 border-end">
-                    <form id="x32">
-                    <div class="row my-2 align-items-center">
-                        <div class="col-1">X32</div>
-                        <div class="col-2">Address</div>
-                        <div class="col-3">
-                            <input id="x32-address" autocomplete="off" placeholder="xxx.xxx.xxx.xxx" type="text" minlength="7" maxlength="15" size="15" pattern="^((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])$" class="form-control-sm text-end form-control">
+            <div class="container-fluid align-content-end flex-grow-0">
+            <div class="row justify-content-around pb-1">
+                <div class="col-auto d-flex flex-column justify-content-around">
+                    <form id="x32" class="row align-items-center">
+                        <label for="x32-address" class="col-auto pe-0">x32 Address</label>
+                        <div class="col-auto">
+                            <input id="x32-address" title="IP address in decimal-dot notation" autocomplete="off" placeholder="xxx.xxx.xxx.xxx" type="text" minlength="7" maxlength="15" size="15" pattern="^((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])$" class="px-1 form-control-sm text-end form-control">
                         </div>
-                        <div class="offset-4 col-1">
-                            <button type="submit" id="x32-connect" class="btn-sm btn btn-outline-primary">Connect</button>
+                        <label for="x32-port" class="col-auto pe-0">Port</label>
+                        <div class="col-auto">
+                            <input id="x32-port" autocomplete="off" type="number" value="10023" min="1024" max="65535" readonly class="text-body-tertiary disabled form-control-sm text-end form-control px-0">
                         </div>
-                    </div>
+                        <div class="col-auto ">
+                            <button type="submit" title="Connect or reconnect to console - resets all data" id="x32-connect" class="btn-sm btn btn-outline-primary">Connect</button>
+                        </div>
                     </form>
-                    <form id="vor">
-                    <div class="row mt-3 align-items-center">
-                        <div class="col-1">Vor</div>
-                        <div class="col-2">Address</div>
-                        <div class="col-3">
-                            <input id="vor-address" autocomplete="off" placeholder="xxx.xxx.xxx.xxx" type="text" minlength="7" maxlength="15" size="15" pattern="^((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])$" class="form-control-sm text-end form-control">
+                    <form id="vor" class="row align-items-center">
+                        <label for="vor-address" class="col-auto pe-0">Vor Address</label>
+                        <div class="col-auto">
+                            <input id="vor-address" title="IP address in decimal-dot notation" autocomplete="off" placeholder="xxx.xxx.xxx.xxx" type="text" minlength="7" maxlength="15" size="15" pattern="^((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])$" class="px-1 form-control-sm text-end form-control">
                         </div>
-                        <div class="col-1">Port</div>
-                        <div class="col-3">
-                            <input id="vor-port" autocomplete="off" type="number" min="1024" max="65535" class="form-control-sm text-end form-control">
+                        <label for="vor-port" class="col-auto pe-0">Port</label>
+                        <div class="col-auto">
+                            <input id="vor-port" title="Port number, 1024-655235" autocomplete="off" type="number" min="1024" max="65535" class="form-control-sm text-end form-control px-0">
                         </div>
-                        <div class="col-1">
-                            <button type="submit" id="vor-connect" class="btn-sm btn btn-outline-primary">Connect</button>
+                        <div class="col-auto ">
+                            <button type="submit" title="Connect to Vor instance" id="vor-connect" class="btn-sm btn btn-outline-primary">Connect</button>
                         </div>
-                    </div>
                     </form>
                 </div>
-                <div class="col-6">
-                    <div class="row justify-content-between gy-2">
-                        <div class="col-12 pt-0 mt-0 text-center">Vor Sends</div>
-                        <div class="col-3">
-                            <input type="checkbox" class="btn-check" id="send-cue">
-                            <label class="btn-sm w-100 btn btn-outline-success" for="send-cue">Cues</label>
-                        </div>
-                        <div class="col-3">
-                            <input type="checkbox" class="btn-check" id="send-dca">
-                            <label class="btn-sm w-100 btn btn-outline-success" for="send-dca">DCA</label>
-                        </div>
-                        <div class="col-3">
-                            <input type="checkbox" class="btn-check" id="send-main">
-                            <label class="btn-sm w-100 btn btn-outline-success" for="send-main">Main</label>
-                        </div>
-                        <div class="col-3">
-                            <input type="checkbox" class="btn-check" id="send-matrix">
-                            <label class="btn-sm w-100 btn btn-outline-success" for="send-matrix">Matrix</label>
-                        </div>
-                        <div class="col-3">
-                            <input type="checkbox" class="btn-check" id="send-bus">
-                            <label class="btn-sm w-100 btn btn-outline-success" for="send-bus">Bus</label>
-                        </div>
-                        <div class="col-3">
-                            <input type="checkbox" class="btn-check" id="send-channel">
-                            <label class="btn-sm w-100 btn btn-outline-success" for="send-channel">Channel</label>
-                        </div>
-                        <div class="col-3">
-                            <input type="checkbox" class="btn-check" id="send-aux">
-                            <label class="btn-sm w-100 btn btn-outline-success" for="send-aux">Aux</label>
-                        </div>
-                    </div>
+                <div class="col-auto" id="vor-sends">
+                    <div class="row text-center"><div class="col-12">Vor Sends</div></div>
+                    <div class="row pb-1"><div class="btn-group">
+                        <input type="checkbox" class="btn-check" id="send-cue">
+                        <label title="Send '/currentCue [string]'" class="btn-sm btn btn-outline-success" for="send-cue">Cues</label>
+                        <input type="checkbox" class="btn-check" id="send-dca">
+                        <label title="Send '/dca[1..8] [string]'" class="btn-sm btn btn-outline-success" for="send-dca">DCA</label>
+                        <input type="checkbox" class="btn-check" id="send-main">
+                        <label title="Send '/main[1..2] [string]'" class="btn-sm btn btn-outline-success" for="send-main">Main</label>
+                    </div></div>
+                    <div class="row"><div class="btn-group">
+                        <input type="checkbox" class="btn-check" id="send-matrix">
+                        <label title="Send '/matrix[1..6] [string]'" class="btn-sm btn btn-outline-success" for="send-matrix">Matrix</label>
+                        <input type="checkbox" class="btn-check" id="send-bus">
+                        <label title="Send '/bus[1..16] [string]'" class="btn-sm btn btn-outline-success" for="send-bus">Bus</label>
+                        <input type="checkbox" class="btn-check" id="send-channel">
+                        <label title="Send '/channel[1..24] [string]'" class="btn-sm btn btn-outline-success" for="send-channel">Channel</label>
+                        <input type="checkbox" class="btn-check" id="send-aux">
+                        <label title="Send '/auxin[1..8] [string]'" class="btn-sm btn btn-outline-success" for="send-aux">Aux</label>
+                    </div></div>
                 </div>
             </div>
             </div>

@@ -119,8 +119,8 @@ pub fn run() {
                         let time = handle.state::<Mutex<SystemTime>>();
                         let elapsed = time.lock().expect("lock failed").elapsed().expect("bad clock");
                         handle.emit("packet_status", match elapsed.as_secs() {
-                            0..7 => 2_usize,
-                            7..=30 => 1_usize,
+                            0..6 => 2_usize,
+                            6..=30 => 1_usize,
                             _ => 0_usize
                         }).unwrap();
                     }

@@ -23,6 +23,8 @@
 const { invoke } = window.__TAURI__.core;
 const { listen } = window.__TAURI__.event;
 
+let show_meters = true;
+
 window.addEventListener("DOMContentLoaded", () => {
     populate_settings()
 
@@ -40,6 +42,10 @@ window.addEventListener("DOMContentLoaded", () => {
     document.getElementById('send-bus').addEventListener('change', (e) => { set_flag('bus') })
     document.getElementById('send-aux').addEventListener('change', (e) => { set_flag('aux') })
     document.getElementById('send-channel').addEventListener('change', (e) => { set_flag('channel') })
+
+    document.getElementById('show-audio').addEventListener('change', (e) => {
+        show_meters = e.target.checked;
+    })
 });
 
 async function set_flag(flag) {
@@ -85,7 +91,9 @@ const meters_0 = await listen('meter-update-0', (event) => {
     // 49-64 - bus
     // 65-70 - mtx
     if ( Array.isArray(event.payload) ) {
-        for (const [i, v] of event.payload.entries()) {
+        let this_data = show_meters ? event.payload : Array(71).fill(1)
+
+        for (const [i, v] of this_data.entries()) {
             if ( i == 0 || ( i >= 41 && i <= 48 )) { continue }
 
             // check against last.
@@ -117,7 +125,9 @@ const meters_5 = await listen('meter-update-5', (event) => {
     // 25-26 - main l/r
     // 27 - mono
     if ( Array.isArray(event.payload) ) {
-        for (const [i, v] of event.payload.entries()) {
+        let this_data = show_meters ? event.payload : Array(28).fill(1)
+
+        for (const [i, v] of this_data.entries()) {
             if ( i <= 16 || i == 26 ) { continue }
 
             // check against last.
@@ -188,7 +198,7 @@ function update_fader(name, data) {
 function update_fader_by_id(id, data) {
     const element = document.getElementById(id);
     if (element !== null) {
-        element.querySelector('.fader-label').textContent = data.label
+        element.querySelector('.fader-label').textContent = data.label === "" ? "&nbsp;" : data.label
         element.querySelector('.fader-level').textContent = data.level
         element.setAttribute("data-is-on", data.is_on ? "true" : "false")
         element.setAttribute("data-color", data.color)

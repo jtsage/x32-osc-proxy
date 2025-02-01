@@ -45,7 +45,31 @@ Messages are sent as a single OSC Message for cue, and a OSC Bundle for each of 
 
 ## In Action
 
-![animated webp](screenshot/animated.webp)
+![animated webp](screenshot/animated.gif)
+
+_Possible Gotcha:_ Note the audio level displayed is a __visualization__ based on a simple exponential expression of the linear audio level - specifically `f(x) = ( x ^ 0.35 ) / 100` - I tried several methods to convert it to decibels and then a percentage, and was unhappy with the visualization, particularly on low level signals - this method amplifies movement on the low end of the scale, pretty much the opposite of how our ears work.  All of that said, this is an effective signal visualization, and should not be interpreted as a volume level.
+
+## Vor Configuration
+
+Add a [Custom OSC](https://docs.getvor.app/vor/settings/connections/show-control/custom-osc) connection of type UDP.  Note that the configuration shown is from Vor version 1.6 or so, some options may look different.
+
+![Options Window](screenshot/vor_connect.png)
+
+By default, we uses port 3333, but you can use whatever you want.
+
+### Add VOR addresses
+
+Add any of the available address endpoints. Note that the fader index is not zero padded like it is on the X32 end - so `/channel/1`, not `/channel/01`
+
+### Setup Layout
+
+Example shown for current cue - all other endpoints follow the same pattern.
+
+![vor layout](screenshot/vor_cue.png)
+
+## Console Coverage
+
+Both the X32 and M32 should work fine, with all their variants.  I have a full size X32, no other products have been tested with this. From my reading, I am quite positive this will not work with the Wing or X-Air line of consoles.
 
 ## License
 

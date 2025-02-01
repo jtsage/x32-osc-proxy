@@ -1,7 +1,15 @@
 {
   "name": "x32-osc-proxy",
+  "description": "X32 Console Family OSC Proxy for Vor",
+  "author": {
+    "name": "FSG Modding",
+    "email": "jtsage+datebox@gmail.com",
+    "url": "https://www.fsgmodding.com/"
+  },
+  "homepage": "https://github.com/jtsage/x32-osc-proxy#readme",
+  "repository": "github:jtsage/x32-osc-proxy",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.9.0",
   "type": "module",
   "scripts": {
     "tauri": "tauri"
