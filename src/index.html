@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="bootstrap.min.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>X32 OSC Proxy</title>
+        <script type="module" src="/main.js" defer></script>
+        <style>
+            .fader-name { 
+                text-align: center;
+                font-size: 0.75em;
+                font-variant: small-caps;
+                padding-bottom: 2px;
+                color:var(--bs-gray-500);
+            }
+            .fader-level-parent {
+                position: relative;
+            }
+            .fader-level-mask {
+                position: absolute;
+                height: 100%;
+                display: block;
+                background-color: rgba(0,0,0,0.25);
+                top: 0;
+                border-top-left-radius: .3em;
+                border-top-right-radius: .3em;
+                transition: all .05s ease-in-out;
+            }
+            .fader-level {
+                text-align: center;
+                padding-top: .3em;
+                padding-bottom: .3em;
+                background-color: #492024;
+                color: var(--bs-red);
+                border-top-left-radius: .3em;
+                border-top-right-radius: .3em;
+                border: #000000 1px solid;
+            }
+            .fader-label { 
+                text-align: center;
+                font-size: 0.8em;
+                font-weight: bold;
+                padding: 3px 0px;
+                border-bottom-left-radius: .3em;
+                border-bottom-right-radius: .3em;
+                border:#000000 1px solid;
+                min-height: 1.65rem;
+            }
+            .fader-box[data-is-on="true"] .fader-level {
+                background-color: var(--bs-success-text-emphasis);
+                color: #000000;
+                font-weight: 500;
+            }
+            .fader-box { padding: 2px!important; margin: 0; width: 6.25%; }
+            .fader-box div { width : 100%; }
+
+
+            .fader-box[data-color="Off"] .fader-label {
+                color:var(--bs-body-bg);
+                background-color: var(--bs-body-bg);
+            }
+            .fader-box[data-color="White"] .fader-label {
+                background-color: var(--bs-body-bg);
+                color:var(--bs-gray-100);
+            }
+            .fader-box[data-color="WhiteInverted"] .fader-label {
+                background-color: var(--bs-gray-100);
+                color:#000000;
+            }
+            .fader-box[data-color="Blue"] .fader-label {
+                background-color: #04285d;
+                color:#2079fd;
+            }
+            .fader-box[data-color="BlueInverted"] .fader-label {
+                background-color: var(--bs-blue);
+                color:var(--bs-body-bg);
+            }
+            .fader-box[data-color="Green"] .fader-label {
+                background-color: #0d472c;
+                color:#2EF99A;
+            }
+            .fader-box[data-color="GreenInverted"] .fader-label {
+                background-color: var(--bs-green);
+                color:var(--bs-body-bg);
+            }
+            .fader-box[data-color="Red"] .fader-label {
+                background-color: #6f1a21;
+                color:#ff7979;
+            }
+            .fader-box[data-color="RedInverted"] .fader-label {
+                background-color: var(--bs-red);
+                color:var(--bs-body-bg);
+            }
+            .fader-box[data-color="Yellow"] .fader-label {
+                background-color: #7c6e02;
+                color:#FBFF18;
+            }
+            .fader-box[data-color="YellowInverted"] .fader-label {
+                background-color: var(--bs-yellow);
+                color:var(--bs-body-bg);
+            }
+            .fader-box[data-color="Magenta"] .fader-label {
+                background-color: #7c0b7c;
+                color:#FF50FF;
+            }
+            .fader-box[data-color="MagentaInverted"] .fader-label {
+                background-color: #FF00FF;
+                color:var(--bs-body-bg);
+            }
+            .fader-box[data-color="Cyan"] .fader-label {
+                background-color: #066b80;
+                color:#97e1f0;
+            }
+            .fader-box[data-color="CyanInverted"] .fader-label {
+                background-color: var(--bs-cyan);
+                color:var(--bs-body-bg);
+            }
+
+            #current-cue { font-size: .75em; }
+
+            #status {
+                width: 15px;
+                height: 15px;
+                border-radius: 100%;
+                border:#000000 1px solid;
+                margin-right: 20px;
+            }
+            #status[data-last="0"] { background-color: var(--bs-red); }
+            #status[data-last="1"] { background-color: var(--bs-yellow); }
+            #status[data-last="2"] { background-color: var(--bs-green); }
+        </style>
+    </head>
+    <body data-bs-theme="dark">
+        <main class="container-fluid m-0 p-0">
+            <div class="d-flex align-items-center px-3 py-2">
+                <img src="/assets/icon.svg" width="90" class="img-fluid" alt="logo">
+                <div class="text-body-tertiary small border border-black bg-info-subtle bg-gradient py-2 px-4 ms-5 rounded-4 text-center">
+                    <div>Cues : <span id="cue-count"></span></div>
+                    <div>Scenes : <span id="scene-count"></span></div>
+                    <div>Snippets : <span id="snippet-count"></span></div>
+                </div>
+                <h1 class="flex-grow-1 text-center">X32 OSC Proxy</h1>
+                <div id="status" data-last="2"></div>
+            </div>
+
+            <table class="w-100"><tbody>
+                <tr>
+                    <td class="fader-box" id="chan-1" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch01</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-2" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch02</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-3" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch03</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-4" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch04</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-5" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch05</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-6" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch06</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-7" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch07</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-8" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch08</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-9" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch09</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-10" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch10</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-11" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch11</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-12" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch12</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-13" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch13</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-14" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch14</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-15" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch15</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-16" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch16</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                </tr>
+                <tr>
+                    <td class="fader-box" id="chan-17" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch17</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-18" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch18</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-19" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch19</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-20" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch20</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-21" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch21</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-22" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch22</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-23" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch23</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-24" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch24</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-25" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch25</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-26" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch26</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-27" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch27</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-28" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch28</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-29" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch29</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-30" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch30</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-31" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch31</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="chan-32" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">ch32</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                </tr>
+                <tr>
+                    <td class="fader-box" id="bus-1" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">bus01</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="bus-2" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">bus02</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="bus-3" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">bus03</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="bus-4" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">bus04</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="bus-5" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">bus05</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="bus-6" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">bus06</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="bus-7" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">bus07</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="bus-8" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">bus08</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="bus-9" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">bus09</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="bus-10" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">bus10</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="bus-11" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">bus11</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="bus-12" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">bus12</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="bus-13" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">bus13</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="bus-14" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">bus14</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="bus-15" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">bus15</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="bus-16" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">bus16</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                </tr>
+                <tr>
+                    <td class="fader-box" id="aux-1" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">aux01</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="aux-2" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">aux02</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="aux-3" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">aux03</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="aux-4" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">aux04</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="aux-5" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">aux05</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="aux-6" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">aux06</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="aux-7" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">aux07</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="aux-8" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">aux08</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td></td>
+                    <td></td>
+                    <td class="fader-box" id="mtx-1" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">mtx01</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="mtx-2" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">mtx02</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="mtx-3" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">mtx03</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="mtx-4" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">mtx04</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="mtx-5" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">mtx05</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="mtx-6" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">mtx06</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                </tr>
+                <tr>
+                    <td class="fader-box" id="dca-1" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">dca01</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="dca-2" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">dca02</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="dca-3" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">dca03</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="dca-4" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">dca04</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="dca-5" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">dca05</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="dca-6" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">dca06</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="dca-7" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">dca07</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="dca-8" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">dca08</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+
+                    <td colspan="6" class="align-bottom px-4 pb-2"><div id="current-cue" class="border border-black bg-info-subtle bg-gradient w-100 p-2 rounded-4 text-center"></div></td>
+
+                    <td class="fader-box" id="main-2" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">m/c</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                    <td class="fader-box" id="main-1" data-color="Off" data-is-on="false"><div class="d-inline-flex flex-column"><div class="fader-name">main</div><div class="fader-level-parent"><div class="fader-level">--</div><div class="fader-level-mask"></div></div><div class="fader-label"></div></div></td>
+                </tr>
+            </tbody></table>
+
+            <div class="container-fluid">
+            <div class="row border-top mt-3 pt-3">
+                <div class="col-6 border-end">
+                    <form id="x32">
+                    <div class="row my-2 align-items-center">
+                        <div class="col-1">X32</div>
+                        <div class="col-2">Address</div>
+                        <div class="col-3">
+                            <input id="x32-address" autocomplete="off" placeholder="xxx.xxx.xxx.xxx" type="text" minlength="7" maxlength="15" size="15" pattern="^((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])$" class="form-control-sm text-end form-control">
+                        </div>
+                        <div class="offset-4 col-1">
+                            <button type="submit" id="x32-connect" class="btn-sm btn btn-outline-primary">Connect</button>
+                        </div>
+                    </div>
+                    </form>
+                    <form id="vor">
+                    <div class="row mt-3 align-items-center">
+                        <div class="col-1">Vor</div>
+                        <div class="col-2">Address</div>
+                        <div class="col-3">
+                            <input id="vor-address" autocomplete="off" placeholder="xxx.xxx.xxx.xxx" type="text" minlength="7" maxlength="15" size="15" pattern="^((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])$" class="form-control-sm text-end form-control">
+                        </div>
+                        <div class="col-1">Port</div>
+                        <div class="col-3">
+                            <input id="vor-port" autocomplete="off" type="number" min="1024" max="65535" class="form-control-sm text-end form-control">
+                        </div>
+                        <div class="col-1">
+                            <button type="submit" id="vor-connect" class="btn-sm btn btn-outline-primary">Connect</button>
+                        </div>
+                    </div>
+                    </form>
+                </div>
+                <div class="col-6">
+                    <div class="row justify-content-between gy-2">
+                        <div class="col-12 pt-0 mt-0 text-center">Vor Sends</div>
+                        <div class="col-3">
+                            <input type="checkbox" class="btn-check" id="send-cue">
+                            <label class="btn-sm w-100 btn btn-outline-success" for="send-cue">Cues</label>
+                        </div>
+                        <div class="col-3">
+                            <input type="checkbox" class="btn-check" id="send-dca">
+                            <label class="btn-sm w-100 btn btn-outline-success" for="send-dca">DCA</label>
+                        </div>
+                        <div class="col-3">
+                            <input type="checkbox" class="btn-check" id="send-main">
+                            <label class="btn-sm w-100 btn btn-outline-success" for="send-main">Main</label>
+                        </div>
+                        <div class="col-3">
+                            <input type="checkbox" class="btn-check" id="send-matrix">
+                            <label class="btn-sm w-100 btn btn-outline-success" for="send-matrix">Matrix</label>
+                        </div>
+                        <div class="col-3">
+                            <input type="checkbox" class="btn-check" id="send-bus">
+                            <label class="btn-sm w-100 btn btn-outline-success" for="send-bus">Bus</label>
+                        </div>
+                        <div class="col-3">
+                            <input type="checkbox" class="btn-check" id="send-channel">
+                            <label class="btn-sm w-100 btn btn-outline-success" for="send-channel">Channel</label>
+                        </div>
+                        <div class="col-3">
+                            <input type="checkbox" class="btn-check" id="send-aux">
+                            <label class="btn-sm w-100 btn btn-outline-success" for="send-aux">Aux</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </main>
+    </body>
+</html>
