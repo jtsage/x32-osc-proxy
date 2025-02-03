@@ -35,11 +35,11 @@ All messages are a single string. _There is currently no way to customize the ou
 
 * __Cue__ : `/currentCue`
 * __DCA__ : `/dca/[1...8]`
-* __Main__ : `/main/1` (Main), `/main/2` (M/C)
-* __Matrix__ : `/matrix/[1...6]`
-* __MixBus__ : `/bus/[1...16]`
-* __Aux__ : `/auxin/[1...8]` (7 and 8 are typically the USB player)
-* __Channel__ : `/channel/[1...32]`
+* __Main__ : `/main/01` (Main), `/main/02` (M/C)
+* __Matrix__ : `/matrix/[01...06]`
+* __MixBus__ : `/bus/[01...16]`
+* __Aux__ : `/auxin/[01...08]` (7 and 8 are typically the USB player)
+* __Channel__ : `/channel/[01...32]`
 
 Messages are sent as a single OSC Message for cue, and a OSC Bundle for each of the other groups. Updates are sent approximately every 150ms.
 
@@ -59,13 +59,17 @@ By default, we uses port 3333, but you can use whatever you want.
 
 ### Add VOR addresses
 
-Add any of the available address endpoints. Note that the fader index is not zero padded like it is on the X32 end - so `/channel/1`, not `/channel/01`
+Add any of the available address endpoints. Note that the fader index __is__ zero padded like it is on the X32 end - so `/channel/01`, not `/channel/1`.  Like the X32, DCA's are the exception to the rule - they are `/dca/1` through `/dca/8`
 
 ### Setup Layout
 
 Example shown for current cue - all other endpoints follow the same pattern.
 
 ![vor layout](screenshot/vor_cue.png)
+
+### Sample Output
+
+![sample screenshot](screenshot/vor_sample.png)
 
 ## Console Coverage
 
