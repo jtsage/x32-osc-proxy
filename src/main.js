@@ -198,7 +198,7 @@ function update_fader(name, data) {
 function update_fader_by_id(id, data) {
     const element = document.getElementById(id);
     if (element !== null) {
-        element.querySelector('.fader-label').innerHTML = data.label === "" ? "&nbsp;" : data.label
+        element.querySelector('.fader-label').textContent = data.label === "" ? " " : data.label
         element.querySelector('.fader-level').textContent = data.level
         element.setAttribute("data-is-on", data.is_on ? "true" : "false")
         element.setAttribute("data-color", data.color)
