@@ -5227,7 +5227,7 @@ dependencies = [
 
 [[package]]
 name = "x32-osc-proxy"
-version = "0.9.0"
+version = "0.9.1"
 dependencies = [
  "app_dirs2",
  "serde",
@@ -5241,9 +5241,9 @@ dependencies = [
 
 [[package]]
 name = "x32_osc_state"
-version = "0.1.2"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5766b9b700c13c81b52aa988eb6d720f7578b94d7339b91946b5b136935f203f"
+checksum = "89e9814d764dd11dc8175be2231def00b44f2450b5ff597789fd0fcea398b951"
 dependencies = [
  "regex",
  "serde",
