@@ -33,6 +33,13 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
+    "macOS": {
+      "entitlements": "./Entitlements.plist",
+      "minimumSystemVersion": "10.15",
+      "signingIdentity": "-",
+      "providerShortName": null,
+      "hardenedRuntime": true
+    },
     "windows": {
       "certificateThumbprint": "b411b434e848b8ff721d76452180804638cd4fc8",
       "digestAlgorithm": "sha256",
